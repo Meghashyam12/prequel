@@ -169,7 +169,12 @@ const deleteRow = (database, tableName, condition) => {
     index++;
   }
 
-  console.log(deleteCount + "rowa deleted");
+  console.log(deleteCount + " rows deleted");
+};
+
+const truncateTable = (database, tableName) => {
+  deleteRow(database, tableName, "");
+  console.log("Truncated " + tableName + " table succesfully");
 };
 
 showDataBase(myDB);
@@ -182,6 +187,7 @@ const commands = {
   UPDATE: updateTable,
   DELETE: deleteRow,
   SHOWDB: showDataBase,
+  TRUNCATE: truncateTable,
 };
 
 const breakQuery = (database, query) => {
