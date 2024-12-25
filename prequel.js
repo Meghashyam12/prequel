@@ -58,12 +58,15 @@ const isNumber = (table, key) => {
   return column[0][key] === "number";
 };
 
+const isNaN = (number) => {
+  return "" + number === "NaN" && number !== "NaN";
+};
+
 const isMatchingDatatype = (table, key, value) => {
   const column = table.columns.filter(
     (column) => Object.keys(column)[0] === key
   );
 
-  console.log(column[0][key], typeof value, key, value);
   return column[0][key] === typeof value && !isNaN(value);
 };
 
@@ -105,9 +108,9 @@ const comparators = {
   "<": (num1, num2) => num1 < num2,
   "<=": (num1, num2) => num1 <= num2,
   "==": (num1, num2) => num1 == num2,
-  "===": (num1, num2) => num1 === num2,
+  "===": (num1, num2) => num1 == num2,
   "!=": (num1, num2) => num1 != num2,
-  "!==": (num1, num2) => num1 !== num2,
+  "!==": (num1, num2) => num1 != num2,
 };
 
 function getPredicate(condition) {
