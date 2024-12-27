@@ -6,7 +6,7 @@ let currentDB = myDB;
 
 function showDataBase() {
   console.log("*".repeat(10));
-  console.log("DATABASE:\n", currentDB);
+  console.table(myDB.tables);
   console.log("*".repeat(10));
 }
 
@@ -190,13 +190,13 @@ const commands = {
   TRUNCATE: truncateTable,
 };
 
-const breakQuery = (database, query) => {
+const breakQuery = (query) => {
   const whereSplit = query.split("WHERE ");
   const args = whereSplit[0].trimEnd().split(" ");
   const command = args[0];
   const condition = whereSplit[1];
 
-  return [database, args, command, condition];
+  return [args, command, condition];
 };
 
 function validateQuery(database, args, command) {
@@ -229,9 +229,9 @@ let query = "";
 while (query !== "EXIT") {
   query = prompt("MYPQL>");
 
-  const splitQuery = breakQuery(currentDB, query);
+  const splitQuery = breakQuery(query);
 
-  if (validateQuery(...splitQuery)) {
-    executeQuery(...splitQuery);
+  if (validateQuery(currentDB, ...splitQuery)) {
+    executeQuery(currentDB, ...splitQuery);
   }
 }
