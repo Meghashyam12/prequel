@@ -1,26 +1,21 @@
 import { commands } from "./commands.js";
 import { EMPTYOBJECT } from "./commands.js";
 
-const myDB = {
-  tables: [],
-};
-
-// const anotherDB = {  //future implementation
-//   tables: [],
-// };
-
-const currentDB = myDB;
-
 const showDataBase = (database) => {
-  console.log("DATABASE:");
+  console.log("\nDATABASE:");
   console.log("*".repeat(10));
   console.table(database.tables);
   console.log("*".repeat(10));
+
+  return database;
 };
 
 const dropTable = (database, tableName, tableLocation) => {
-  database.tables.splice(tableLocation, tableLocation + 1);
   console.log(tableName, "table dropped");
+
+  const tables = database.tables.toSpliced(tableLocation, tableLocation + 1);
+
+  return { database, tables };
 };
 
 const internalCommands = {
@@ -28,7 +23,16 @@ const internalCommands = {
   DROP: dropTable,
 };
 
-function validateQuery(database, tableName, _, command) {
+const differringArgumentCommands = [
+  "CREATE",
+  "SHOWDB",
+  "DROP",
+  "SELECT",
+  "DELETE",
+  "TRUNCATE",
+];
+
+const validateCommands = (database, command, tableName) => {
   if (command === "" || command === "EXIT") {
     return false;
   }
@@ -47,57 +51,109 @@ function validateQuery(database, tableName, _, command) {
   }
 
   return true;
-}
+};
+
+const validateArguments = (command, commandArgs, condition) => {
+  if (
+    !differringArgumentCommands.includes(command) &&
+    commandArgs.length === 0
+  ) {
+    console.log("Invalid Argument Length");
+    return false;
+  }
+
+  if (condition && condition.split(" ").length !== 3) {
+    console.log("Invalid condtion");
+    return false;
+  }
+
+  return true;
+};
+
+const validateQuery = (
+  database,
+  tableName,
+  commandArgs,
+  command,
+  condition
+) => {
+  return (
+    validateCommands(database, command, tableName) &&
+    validateArguments(command, commandArgs, condition)
+  );
+};
 
 const isMatchingTable = (tableName) => {
   return (element) => element.tableName === tableName;
 };
 
-const executeQuery = (database, tableName, args, command, condition) => {
-  const tableLocation = database.tables.findIndex(isMatchingTable(tableName));
+const executeQuery = (database, tableName, commandArgs, command, condition) => {
+  const newDB = { ...database };
+  const tableLocation = newDB.tables.findIndex(isMatchingTable(tableName));
 
   if (command in internalCommands) {
-    internalCommands[command](database, tableName, tableLocation);
-    return;
+    return internalCommands[command](newDB, tableName, tableLocation);
   }
 
-  const originalTable = database.tables[tableLocation];
+  const originalTable = newDB.tables[tableLocation];
   const isExistingTable = tableLocation !== -1;
   const newTable = commands[command](
     originalTable,
     tableName,
-    args,
+    commandArgs,
     condition,
     isExistingTable
   );
 
   if (!isExistingTable && newTable !== EMPTYOBJECT) {
-    database.tables.push(newTable);
-    return;
+    newDB.tables.push(newTable);
+    return newDB;
   }
   if (newTable !== EMPTYOBJECT) {
-    database.tables[tableLocation] = newTable;
-    return;
+    newDB.tables[tableLocation] = newTable;
+    return newDB;
   }
+
+  return database;
 };
 
-const breakQuery = (query) => {
+const splitQuery = (query) => {
   const whereSplit = query.split("WHERE ");
-  const args = whereSplit[0].trimEnd().split(" ");
-  const command = args[0];
-  const tableName = args[1];
+  const commandArgs = whereSplit[0].trimEnd().split(" ");
+  const command = commandArgs[0];
+  const tableName = commandArgs[1];
   const condition = whereSplit[1];
 
-  return [tableName, args.slice(2, args.length), command, condition];
+  return [
+    tableName,
+    commandArgs.slice(2, commandArgs.length),
+    command,
+    condition,
+  ];
 };
 
-let query = "";
-while (query !== "EXIT") {
-  query = prompt("MYPQL>");
-
-  const splitQuery = breakQuery(query);
-
-  if (validateQuery(currentDB, ...splitQuery)) {
-    executeQuery(currentDB, ...splitQuery);
+const runMYPQL = (database, query) => {
+  if (query === "EXIT") {
+    return;
   }
-}
+
+  const queryInParts = splitQuery(query);
+
+  if (validateQuery(database, ...queryInParts)) {
+    const updatedDB = executeQuery(database, ...queryInParts);
+
+    return runMYPQL(updatedDB, prompt("MYPQL>"));
+  }
+
+  runMYPQL(database, prompt("MYPQL>"));
+};
+
+const main = () => {
+  const myDB = {
+    tables: [],
+  };
+
+  runMYPQL(myDB, "");
+};
+
+main();

@@ -16,7 +16,9 @@ const createTable = (_, name, columns, __, isExistingTable) => {
     return EMPTYOBJECT;
   }
 
-  const seperatedCols = columns[0].split(",").map((col) => col.split(":"));
+  const seperatedCols = columns[0].split(",").map((col) => {
+    return col.split(":");
+  });
   const colsAsObjects = seperatedCols.map(toObject);
   console.log("Succesfully created table " + name);
 
@@ -53,6 +55,7 @@ const createRow = (table) => {
 
 const insertIntoTable = (originalTable, name, values) => {
   const splitValues = values[0].split(",");
+  console.log(splitValues, originalTable.col);
 
   if (splitValues.length !== originalTable.columns.length) {
     console.log("Could not insert values, invalid argument length");
