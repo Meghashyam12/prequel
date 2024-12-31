@@ -13,7 +13,7 @@ const showDataBase = (database) => {
 const dropTable = (database, tableName, tableLocation) => {
   console.log(tableName, "table dropped");
 
-  const tables = database.tables.toSpliced(tableLocation, tableLocation + 1);
+  const tables = database.tables.toSpliced(tableLocation, 1);
 
   return { database, tables };
 };

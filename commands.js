@@ -140,7 +140,7 @@ const deleteRow = (originalTable, tableName, _, condition) => {
 
   while (index < resultTable.rows.length) {
     if (predicate(resultTable.rows[index])) {
-      resultTable.rows.splice(index, index + 1);
+      resultTable.rows.splice(index, 1);
       index -= 1;
       deleteCount += 1;
     }
