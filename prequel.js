@@ -120,8 +120,8 @@ const executeQuery = (database, tableName, commandArgs, command, condition) => {
 const splitQuery = (query) => {
   const whereSplit = query.split("WHERE ");
   const commandArgs = whereSplit[0].trimEnd().split(" ");
-  const command = commandArgs[0];
-  const tableName = commandArgs[1];
+  const [command, tableName] = commandArgs;
+  // const tableName = commandArgs[1];
   const condition = whereSplit[1];
 
   return [
@@ -134,7 +134,7 @@ const splitQuery = (query) => {
 
 const runMYPQL = (database, query) => {
   if (query === "EXIT") {
-    return;
+    return 0;
   }
 
   const queryInParts = splitQuery(query);
@@ -145,7 +145,7 @@ const runMYPQL = (database, query) => {
     return runMYPQL(updatedDB, prompt("MYPQL>"));
   }
 
-  runMYPQL(database, prompt("MYPQL>"));
+  return runMYPQL(database, prompt("MYPQL>"));
 };
 
 const main = () => {

@@ -18,3 +18,5 @@ DELETE student_table
 TRUNCATE student_table
 
 SHOWDB
+
+EXIT

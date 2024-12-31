@@ -55,7 +55,6 @@ const createRow = (table) => {
 
 const insertIntoTable = (originalTable, name, values) => {
   const splitValues = values[0].split(",");
-  console.log(splitValues, originalTable.col);
 
   if (splitValues.length !== originalTable.columns.length) {
     console.log("Could not insert values, invalid argument length");
